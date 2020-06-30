@@ -47,14 +47,14 @@ func resourceKubernetes() *schema.Resource {
 			},
 			"name": {
 				Type:     schema.TypeString,
-				//Description: "This attribute is there for documentation purpose only and isnt passed to the OVH API as it may conflicts with http/tcp  ",
+				//Description: " ",
 				Required: true,
 				ForceNew: false,
 			},
 			"region": {
 				Type:     schema.TypeString,
 				Required: true,
-				//Description: "This attribute is there for documentation purpose only and isnt passed to the OVH API as it may conflicts with http/tcp  ",
+				//Description: "OVH Region",
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
@@ -62,31 +62,42 @@ func resourceKubernetes() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			//"desired_nodes": {
-			//	Type:     schema.TypeFloat,
-			//	//Description: "This attribute is there for documentation purpose only and isnt passed to the OVH API as it may conflicts with http/tcp  ",
-			//	Optional: true,
-			//},
-			//"min_nodes": {
-			//	Type:     schema.TypeFloat,
-			//	//Description: "This attribute is there for documentation purpose only and isnt passed to the OVH API as it may conflicts with http/tcp ",
-			//	Optional: true,
-			//},
-			//"max_nodes": {
-			//	Type:     schema.TypeFloat,
-			//	//Description: "This attribute is there for documentation purpose only and isnt passed to the OVH API as it may conflicts with http/tcp ",
-			//	Optional: true,
-			//},
-			//"nodes_prefix" : {
-			//	Type: schema.TypeString,
-			//	//Description: "This attribute is there for documentation purpose only and isnt passed to the OVH API as it may conflicts with http/tcp ",
-			//	Optional: true,
-			//},
-			//"flavor" : {
-			//	Type: schema.TypeString,
-			//	//Description: "This attribute is there for documentation purpose only and isnt passed to the OVH API as it may conflicts with http/tcp ",
-			//	Optional: true,
-			//},
+			"node_pool": {
+				Type: schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"desired_nodes": {
+							Type:     schema.TypeFloat,
+							//Description: "Number of Desired Active Nodes ",
+							Optional: true,
+						},
+						"flavor_name" : {
+							Type: schema.TypeString,
+							//Description: "",
+							Optional: true,
+						},
+						"max_nodes": {
+							Type:     schema.TypeFloat,
+							//Description: "Maximum number of available nodes (cannot be lower)",
+							Optional: true,
+						},
+						"min_nodes": {
+							Type:     schema.TypeFloat,
+							//Description: "Minumum number of available nodes",
+							Optional: true,
+						},
+						"name" : {
+							Type: schema.TypeString,
+							//Description: "",
+							Optional: true,
+						},
+
+					},
+				},
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -103,16 +114,14 @@ func resourceKubernetesCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	projectId := d.Get("service_name").(string)
+
+
 	params := &KubernetesCreateOpts{
 		serviceName:  d.Get("service_name").(string),
 		Name:         d.Get("name").(string),
 		Version:      d.Get("version").(string),
 		//DesiredNodes: d.Get("desired_nodes").(int),
-		//MaxNodes:     d.Get("max_nodes").(int),
-		//MinNodes:     d.Get("min_nodes").(int),
-		//FlavorName:   d.Get("flavor").(string),
 		Region:       d.Get("region").(string),
-		//nodeName:     d.Get("nodes_prefix").(string),
 	}
 
 	r := &KubernetesCreateResponse{}
@@ -238,22 +247,6 @@ func readKubernetes(config *Config, d *schema.ResourceData, r *KubernetesCreateR
 	d.Set("status", r.Status)
 
 	d.SetId(r.Id)
-	return nil
-}
-
-func kubernetesClusterExists(projectId, id string, c *ovh.Client) error {
-	r := &KubernetesCreateResponse{}
-
-	log.Printf("[DEBUG] Will Get kubernetes cluster : %s, id: %s", projectId, id)
-
-	endpoint := fmt.Sprintf("/cloud/project/%s/kube/%s", projectId, id)
-
-	err := c.Get(endpoint, r)
-	if err != nil {
-		return fmt.Errorf("calling %s:\n\t %q", endpoint, err)
-	}
-	log.Printf("[DEBUG] Get Kubernetes cluster: %s", r)
-
 	return nil
 }
 
