@@ -24,13 +24,13 @@ func init() {
 	}
 }
 
-func TestProvider(t *testing.T) {
+func TestAccProvider(t *testing.T) {
 	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
-func TestProvider_impl(t *testing.T) {
+func TestAccProvider_impl(t *testing.T) {
 	var _ terraform.ResourceProvider = Provider()
 }
 
@@ -68,6 +68,14 @@ func testAccPreCheckCredentials(t *testing.T) {
 			testAccOVHClient = config.OVHClient
 		}
 	}
+}
+
+// Checks that the environment variables needed for the /cloud/{cloudId}/kube acceptance tests
+// are set.
+func testPreCheckKubernetes(t *testing.T) {
+	testAccPreCheckCredentials(t)
+	// testAccPreCheckPublicCloud(t)
+	checkEnvOrSkip(t, "OVH_KUBERNETES_CLUSTER_NAME")
 }
 
 // Checks that the environment variables needed for the /ip acceptance tests

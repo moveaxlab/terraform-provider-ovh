@@ -61,6 +61,7 @@ func Provider() terraform.ResourceProvider {
 			"ovh_me_ssh_keys":                      dataSourceMeSshKeys(),
 			"ovh_vps":                              dataSourceVPS(),
 			"ovh_vracks":                           dataSourceVracks(),
+			"ovh_kubernetes_cluster":               dataSourceKubernetesCluster(),
 
 			// Legacy naming schema (publiccloud)
 			"ovh_publiccloud_region": deprecated(dataSourceCloudRegion(),
@@ -99,7 +100,8 @@ func Provider() terraform.ResourceProvider {
 			"ovh_vrack_dedicated_server":                                  resourceVrackDedicatedServer(),
 			"ovh_vrack_dedicated_server_interface":                        resourceVrackDedicatedServerInterface(),
 			"ovh_vrack_iploadbalancing":                                   resourceVrackIpLoadbalancing(),
-			"ovh_managed_kubernetes":	resourceKubernetes(),
+			"ovh_managed_kubernetes":                                      resourceCloudKubernetesCluster(),
+			"ovh_kubernetes_node":                                         resourceCloudKubernetesNode(),
 
 			// Legacy naming schema (publiccloud)
 			"ovh_publiccloud_private_network": deprecated(resourceCloudNetworkPrivate(),
